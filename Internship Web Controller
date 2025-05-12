@@ -1,0 +1,45 @@
+package com.internship.virtual.internship.controller;
+import com.internship.virtual.internship.dto.InternshipDTO;
+import com.internship.virtual.internship.model.Domain;
+import com.internship.virtual.internship.model.Internship;
+import com.internship.virtual.internship.service.DomainService;
+import com.internship.virtual.internship.service.InternshipService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+@Controller
+@RequestMapping("/internships")
+public class InternshipWebController {
+    @Autowired
+    private InternshipService internshipService;
+    @Autowired
+    private DomainService domainService;
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("internshipDTO", new InternshipDTO());
+        model.addAttribute("domains", domainService.findAll());
+        return "register_internship"; // your HTML file name
+    }
+    @PostMapping("/add")
+    public String saveInternship(@ModelAttribute InternshipDTO internshipDTO) {
+        Domain domain = domainService.findById(internshipDTO.getDomainId());
+        if (domain == null) {
+            return "redirect:/internships/add?error";
+        }
+        Internship internship = new Internship();
+        internship.setName(internshipDTO.getName());
+        internship.setDescription(internshipDTO.getDescription());
+        internship.setDuration(internshipDTO.getDuration());
+        internship.setDomain(domain);
+        internshipService.save(internship);
+        return "redirect:/internships/add?success";
+    }
+    @GetMapping
+    public String listInternships(Model model) {
+        List<Internship> internships = internshipService.findAll();
+        model.addAttribute("internships", internships);
+        return "internship_list"; // optional page to show internships
+    }
+}
