@@ -1,0 +1,34 @@
+package com.internship.virtual.internship.service;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import  com.internship.virtual.internship.model.Domain;
+import  com.internship.virtual.internship.model.Internship;
+import  com.internship.virtual.internship.repository.InternshipRepository;
+@Service
+public class InternshipService {  
+    @Autowired
+    private InternshipRepository internshipRepository;
+    public List<Internship> findAll() {
+        return internshipRepository.findAll();
+    }
+    public Internship findById(Long id) {
+        return internshipRepository.findById(id).orElse(null);
+    }
+    public List<Internship> findByDomain(Domain domain) {
+        return internshipRepository.findByDomain(domain);
+    }
+    public Internship findByNameAndDomain(String name, Domain domain) {
+        return internshipRepository.findByNameAndDomain(name, domain);
+    }
+    public Internship save(Internship internship) {
+        return internshipRepository.save(internship);
+    }
+    public void deleteById(Long id) {
+        internshipRepository.deleteById(id);
+    }
+    public List<Internship> getInternshipsByDomainName(String domainName) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getInternshipsByDomainName'");
+    }
+}
