@@ -1,0 +1,11 @@
+package com.internship.virtual.internship.repository;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.internship.virtual.internship.model.Domain;
+import com.internship.virtual.internship.model.Internship;
+@Repository
+public interface InternshipRepository extends JpaRepository<Internship, Long> {
+    List<Internship> findByDomain(Domain domain);
+    Internship findByNameAndDomain(String name, Domain domain);
+}
