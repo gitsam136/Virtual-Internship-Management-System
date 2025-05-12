@@ -1,0 +1,39 @@
+package com.internship.virtual.internship.service;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.internship.virtual.internship.model.Internship;
+import com.internship.virtual.internship.model.Student;
+import com.internship.virtual.internship.model.StudentInternship;
+import com.internship.virtual.internship.repository.StudentInternshipRepository;
+@Service
+public class StudentInternshipService {
+    @Autowired
+    private StudentInternshipRepository studentInternshipRepository;
+    public List<StudentInternship> findAll() {
+        return studentInternshipRepository.findAll();
+    }
+    public StudentInternship findById(Long id) {
+        return studentInternshipRepository.findById(id).orElse(null);
+    }
+    public List<StudentInternship> findByStudent(Student student) {
+        return studentInternshipRepository.findByStudent(student);
+    }
+    public List<StudentInternship> findByInternship(Internship internship) {
+        return studentInternshipRepository.findByInternship(internship);
+    }
+    public StudentInternship findByStudentAndInternship(Student student, Internship internship) {
+        return studentInternshipRepository.findByStudentAndInternship(student, internship);
+    }
+    public StudentInternship save(StudentInternship studentInternship) {
+        return studentInternshipRepository.save(studentInternship);
+    }
+    public void deleteById(Long id) {
+        studentInternshipRepository.deleteById(id);
+    }
+    public void submitTask(StudentInternship studentInternship, String fileName) {
+        studentInternship.setSubmissionFile(fileName);
+        studentInternship.setStatus("Completed");
+        studentInternshipRepository.save(studentInternship);
+    }
+}
