@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Internships - VIMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #4e54c8;
+            --primary-light: #8f94fb;
+            --secondary: #ff6b6b;
+            --secondary-light: #ff8e8e;
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-light: #f5f5f5;
+            --bg-dark: #2c3e50;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--bg-light);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin: 20px 0;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 80vh;
+        }
+
+        /* Typography */
+        h1 {
+            color: var(--text-light);
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: var(--text-light);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-light);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .nav-logo {
+            color: var(--text-light);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Accordion for tasks */
+        .accordion {
+            margin: 15px 0;
+        }
+
+        .accordion-header {
+            padding: 12px 15px;
+            background: var(--primary-light);
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-content {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            display: none;
+        }
+
+        .accordion-active .accordion-content {
+            display: block;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px 0;
+            text-align: center;
+            color: var(--text-light);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize accordions
+            const accordions = document.querySelectorAll('.accordion-header');
+            if (accordions) {
+                accordions.forEach(accordion => {
+                    accordion.addEventListener('click', function() {
+                        this.parentElement.classList.toggle('accordion-active');
+                    });
+                });
+            }
+
+            // Show/hide alerts automatically after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts) {
+                setTimeout(() => {
+                    alerts.forEach(alert => {
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                            alert.style.display = 'none';
+                        }, 500);
+                    });
+                }, 5000);
+            }
+
+            // Add animation to cards
+            const cards = document.querySelectorAll('.card, .role-card, .dashboard-card');
+            if (cards) {
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.15)';
+                    });
+
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                    });
+                });
+            }
+        });
+
+        // View internships functionality for students
+        function setupViewInternships() {
+            const registerButtons = document.querySelectorAll('.register-internship');
+            if (registerButtons) {
+                registerButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const internshipId = this.getAttribute('data-id');
+                        if (confirm('Are you sure you want to register for this internship?')) {
+                            window.location.href = /student/register-internship?internshipId=${internshipId};
+                        }
+                    });
+                });
+            }
+
+            // Filter internships by domain
+            const domainFilter = document.getElementById('domainFilter');
+            if (domainFilter) {
+                domainFilter.addEventListener('change', function() {
+                    const selectedDomain = this.value;
+                    const internshipCards = document.querySelectorAll('.dashboard-card');
+                    internshipCards.forEach(card => {
+                        const cardDomain = card.getAttribute('data-domain');
+                        if (selectedDomain === 'all' || selectedDomain === cardDomain) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
+
+        setupViewInternships();
+    </script>
+
+</head>
+<body>
+    <header class="nav">
+        <a href="#" class="nav-logo">VIMS</a>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Home</a>
+            <a href="#" class="nav-link">Internships</a>
+            <a href="#" class="nav-link">Profile</a>
+            <a href="#" class="nav-link">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="center-content">
+            <h1>View Available Internships</h1>
+            <label for="domainFilter">Filter by Domain:</label>
+            <select id="domainFilter" class="form-control">
+                <option value="all">All</option>
+                <option value="web">Web Development</option>
+                <option value="mobile">Mobile Development</option>
+                <option value="data">Data Science</option>
+                <option value="ai">AI & ML</option>
+            </select>
+
+            <!-- Internships List -->
+            <div class="card dashboard-card" data-domain="web">
+                <h2>Web Development Internship</h2>
+                <p>Learn full-stack web development in this internship.</p>
+                <button class="btn btn-secondary register-internship" data-id="1">Register</button>
+            </div>
+
+            <div class="card dashboard-card" data-domain="mobile">
+                <h2>Mobile Development Internship</h2>
+                <p>Work on building mobile apps in this exciting internship.</p>
+                <button class="btn btn-secondary register-internship" data-id="2">Register</button>
+            </div>
+
+            <div class="card dashboard-card" data-domain="data">
+                <h2>Data Science Internship</h2>
+                <p>Deep dive into data analysis and machine learning.</p>
+                <button class="btn btn-secondary register-internship" data-id="3">Register</button>
+            </div>
+
+            <div class="card dashboard-card" data-domain="ai">
+                <h2>AI & ML Internship</h2>
+                <p>Learn how to build AI and ML models in this internship.</p>
+                <button class="btn btn-secondary register-internship" data-id="4">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Virtual Internship Management System</p>
+    </footer>
+</body>
+</html>
