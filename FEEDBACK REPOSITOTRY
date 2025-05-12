@@ -1,0 +1,13 @@
+package com.internship.virtual.internship.repository;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.internship.virtual.internship.model.Feedback;
+import com.internship.virtual.internship.model.Internship;
+import com.internship.virtual.internship.model.Student;
+@Repository
+public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
+    List<Feedback> findByStudent(Student student);
+    List<Feedback> findByInternship(Internship internship);
+    List<Feedback> findByStudentAndInternship(Student student, Internship internship);
+}
