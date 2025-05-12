@@ -1,0 +1,26 @@
+package com.internship.virtual.internship.service;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.internship.virtual.internship.model.Domain;
+import com.internship.virtual.internship.repository.DomainRepository;
+@Service
+public class DomainService {  
+    @Autowired
+    private DomainRepository domainRepository; 
+    public List<Domain> findAll() {
+        return domainRepository.findAll();
+    }
+    public Domain findById(Long id) {
+        return domainRepository.findById(id).orElse(null);
+    }
+    public Domain findByName(String name) {
+        return domainRepository.findByName(name);
+    }
+    public Domain save(Domain domain) {
+        return domainRepository.save(domain);
+    }
+    public void deleteById(Long id) {
+        domainRepository.deleteById(id);
+    }
+}
