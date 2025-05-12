@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - VIMS</title>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #4e54c8;
+            --primary-light: #8f94fb;
+            --secondary: #ff6b6b;
+            --secondary-light: #ff8e8e;
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-light: #f5f5f5;
+            --bg-dark: #2c3e50;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--bg-light);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin: 20px 0;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 80vh;
+        }
+
+        /* Typography */
+        h1 {
+            color: var(--text-light);
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: var(--text-light);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-light);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .nav-logo {
+            color: var(--text-light);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px 0;
+            text-align: center;
+            color: var(--text-light);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+    <script>
+        // Common functionality for all pages
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize accordions
+            const accordions = document.querySelectorAll('.accordion-header');
+            if (accordions) {
+                accordions.forEach(accordion => {
+                    accordion.addEventListener('click', function() {
+                        this.parentElement.classList.toggle('accordion-active');
+                    });
+                });
+            }
+
+            // Show/hide alerts automatically after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts) {
+                setTimeout(() => {
+                    alerts.forEach(alert => {
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                            alert.style.display = 'none';
+                        }, 500);
+                    });
+                }, 5000);
+            }
+
+            // Add animation to cards
+            const cards = document.querySelectorAll('.card, .role-card, .dashboard-card');
+            if (cards) {
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.15)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                    });
+                });
+            }
+        });
+
+        // Validate registration form
+        function validateRegistrationForm() {
+            const registrationForm = document.getElementById('registrationForm');
+
+            if (registrationForm) {
+                registrationForm.addEventListener('submit', function(e) {
+                    const usernameInput = document.getElementById('username');
+                    const passwordInput = document.getElementById('password');
+                    const confirmPasswordInput = document.getElementById('confirmPassword');
+                    const nameInput = document.getElementById('name');
+                    const emailInput = document.getElementById('email');
+
+                    // Simple validation
+                    if (!usernameInput.value.trim() || !passwordInput.value.trim() || 
+                        !confirmPasswordInput.value.trim() || !nameInput.value.trim() || 
+                        !emailInput.value.trim()) {
+                        e.preventDefault();
+                        alert('Please fill all required fields');
+                        return;
+                    }
+
+                    // Password match validation
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        e.preventDefault();
+                        alert('Passwords do not match');
+                        return;
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/" class="nav-logo">VIMS</a>
+        </div>
+        
+        <div class="card" style="max-width: 600px; margin: 50px auto;">
+            <h2>Student Registration</h2>
+            <p>Register to participate in virtual internships</p>
+            
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            
+            <form id="registrationForm" action="/student/register" method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <small>Password must be at least 6 characters long</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-block">Register</button>
+            </form>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Virtual Internship Management System. All Rights Reserved.</p>
+    </footer>
+    
+    <script>
+        validateRegistrationForm();
+    </script>
+</body>
+</html>
