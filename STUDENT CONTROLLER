@@ -1,0 +1,240 @@
+package com.internship.virtual.internship.controller;
+import java.util.List;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.internship.virtual.internship.model.*;
+import com.internship.virtual.internship.service.*;
+@Controller
+@RequestMapping("/student")
+public class StudentController {
+    @Autowired
+    private StudentService studentService;
+    @Autowired
+    private DomainService domainService;
+    @Autowired
+    private InternshipService internshipService;
+    @Autowired
+    private StudentInternshipService studentInternshipService;
+    @Autowired
+    private FeedbackService feedbackService;
+    @GetMapping("/soptions")
+    public String studentOptions() {
+        return "soption";
+    }
+    @GetMapping("/type")
+    public String studentType() {
+        return "studentType";
+    }
+    @GetMapping("/login")
+    public String loginPage() {
+        return "slogin";
+    }
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password,
+                        HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            Student student = studentService.validateStudent(username, password);
+            if (student != null) {
+                session.setAttribute("studentId", student.getId());
+                session.setAttribute("studentUsername", student.getUsername());
+                return "redirect:/student/dashboard";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+                return "redirect:/student/login";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "An error occurred during login. Please try again.");
+            return "redirect:/student/login";
+        }
+    }
+    @GetMapping("/register")
+    public String registerPage() {
+        return "sregister";
+    }
+    @PostMapping("/register")
+    public String register(@RequestParam String name, @RequestParam String email,
+                           @RequestParam String username, @RequestParam String password,
+                           @RequestParam String college, @RequestParam String course,
+                           RedirectAttributes redirectAttributes) {
+        if (studentService.findByUsername(username) != null) {
+            redirectAttributes.addFlashAttribute("error", "Username already exists");
+            return "redirect:/student/register";
+        }
+
+        if (studentService.findByEmail(email) != null) {
+            redirectAttributes.addFlashAttribute("error", "Email already exists");
+            return "redirect:/student/register";
+        }
+        Student student = new Student(name, email, username, password, college, course);
+        studentService.save(student);
+
+        redirectAttributes.addFlashAttribute("success", "Registration successful. Please login.");
+        return "redirect:/student/login";
+    }
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        Long studentId = (Long) session.getAttribute("studentId");
+        Student student = studentService.findById(studentId);
+        List<StudentInternship> studentInternships = studentInternshipService.findByStudent(student);
+        model.addAttribute("student", student);
+        model.addAttribute("registeredInternships", studentInternships);
+        return "sdashboard";
+    }
+    @GetMapping("/view-internships")
+    public String viewInternships(HttpSession session, Model model) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        List<Domain> domains = domainService.findAll();
+        model.addAttribute("domains", domains);
+        return "sviewinternships";
+    }
+    @GetMapping("/public-internships")
+    public String publicInternships(Model model) {
+        List<Internship> internships = internshipService.findAll();
+        model.addAttribute("internships", internships);
+        return "newStudentInternship";
+    }
+    @PostMapping("/register-internship")
+    public String registerInternship(@RequestParam Long internshipId,
+                                     HttpSession session, RedirectAttributes redirectAttributes) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        Long studentId = (Long) session.getAttribute("studentId");
+        Student student = studentService.findById(studentId);
+        Internship internship = internshipService.findById(internshipId);
+        if (internship == null) {
+            redirectAttributes.addFlashAttribute("error", "Internship not found");
+            return "redirect:/student/view-internships";
+        }
+        if (studentInternshipService.findByStudentAndInternship(student, internship) != null) {
+            redirectAttributes.addFlashAttribute("error", "You have already registered for this internship");
+            return "redirect:/student/view-internships";
+        }
+        studentInternshipService.save(new StudentInternship(student, internship));
+        redirectAttributes.addFlashAttribute("success", "Internship registration successful");
+        return "redirect:/student/dashboard";
+    }
+    @PostMapping("/register-new-internship")
+    public String registerNewInternship(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam String college,
+            @RequestParam String course,
+            @RequestParam Long internshipId,
+            RedirectAttributes redirectAttributes) {
+        if (studentService.findByUsername(username) != null || studentService.findByEmail(email) != null) {
+            redirectAttributes.addFlashAttribute("error", "Username or Email already exists");
+            return "redirect:/student/public-internships";
+        }
+        Student student = new Student(name, email, username, password, college, course);
+        studentService.save(student);
+        Internship internship = internshipService.findById(internshipId);
+        if (internship == null) {
+            redirectAttributes.addFlashAttribute("error", "Internship not found");
+            return "redirect:/student/public-internships";
+        }
+        studentInternshipService.save(new StudentInternship(student, internship));
+        redirectAttributes.addFlashAttribute("success", "Registration successful. Please login.");
+        return "redirect:/student/login";
+    }
+    @PostMapping("/submit-task")
+    public String submitTask(
+                @RequestParam Long studentInternshipId,
+                @RequestParam("file") MultipartFile file,
+                HttpSession session,
+                RedirectAttributes redirectAttributes) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        StudentInternship si = studentInternshipService.findById(studentInternshipId);
+        if (si == null) {
+            redirectAttributes.addFlashAttribute("error", "Registration not found");
+            return "redirect:/student/dashboard";
+        }
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Please select a file to upload");
+            return "redirect:/student/task-submission";
+        }
+        try {
+            // Save the file to a directory (e.g., uploads/)
+            String userHome = System.getProperty("user.home");
+            String uploadDir = userHome + java.io.File.separator + "virtual_internship_uploads";
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+            String originalFilename = file.getOriginalFilename();
+            java.nio.file.Path filePath = uploadPath.resolve(originalFilename);
+            file.transferTo(filePath.toFile());
+            // Update the student internship with the submitted file name
+            studentInternshipService.submitTask(si, originalFilename);
+            redirectAttributes.addFlashAttribute("success", "Task submitted successfully");
+            return "redirect:/student/dashboard";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Failed to upload file: " + e.getMessage());
+            return "redirect:/student/task-submission";
+        }
+    }
+    @PostMapping("/submit-feedback")
+    public String submitFeedback(@RequestParam Long internshipId,
+                                 @RequestParam String content,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        Long studentId = (Long) session.getAttribute("studentId");
+        Student student = studentService.findById(studentId);
+        Internship internship = internshipService.findById(internshipId);
+        if (internship == null) {
+            redirectAttributes.addFlashAttribute("error", "Internship not found");
+            return "redirect:/student/dashboard";
+        }
+        if (studentInternshipService.findByStudentAndInternship(student, internship) == null) {
+            redirectAttributes.addFlashAttribute("error", "You are not registered for this internship");
+            return "redirect:/student/dashboard";
+        }
+        Feedback feedback = new Feedback(student, internship, content);
+        feedbackService.save(feedback);
+        redirectAttributes.addFlashAttribute("success", "Feedback submitted successfully");
+        return "redirect:/student/dashboard";
+    }
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+    @GetMapping("/task-submission")
+    public String taskSubmissionPage(HttpSession session, Model model) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        // Get student's internships to display in the form for reference
+        Long studentId = (Long) session.getAttribute("studentId");
+        Student student = studentService.findById(studentId);
+        List<StudentInternship> studentInternships = studentInternshipService.findByStudent(student);
+        model.addAttribute("registeredInternships", studentInternships);
+        return "stasksubmission";
+    }
+    @GetMapping("/feedback")
+    public String feedbackPage(HttpSession session) {
+        if (session.getAttribute("studentId") == null) {
+            return "redirect:/student/login";
+        }
+        return "sfeedback";
+    }
+}
